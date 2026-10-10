@@ -1,0 +1,22 @@
+#!/bin/sh
+# Stage 0 - S-5 Branch rules (free plan) and pull-request template
+# File in repo: dev/git-hooks/pre-push
+#
+# WHAT IT IS: A Git hook. Git runs it just before every push and cancels the push when it would
+#     update the branch "main" on the remote.
+# WHERE IT IS USED: On every developer PC (Windows, Linux, macOS). Turn it on once per clone:
+#         git config core.hooksPath dev/git-hooks
+#     On Linux and macOS the file must be executable (git update-index --chmod=+x dev/git-hooks/pre-push).
+# IN SIMPLE WORDS: GitHub Free cannot lock main, so every PC refuses the push by itself.
+#
+# Git sends one line per pushed branch on standard input:
+#     <local ref> <local sha> <remote ref> <remote sha>
+
+while read -r local_ref local_sha remote_ref remote_sha; do
+    if [ "$remote_ref" = "refs/heads/main" ]; then
+        echo "Push to main refused: push a branch and open a pull request." >&2
+        exit 1
+    fi
+done
+
+exit 0
